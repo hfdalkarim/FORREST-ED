@@ -651,6 +651,7 @@
             }
         }
 
+        
         async function fetchDataFromSheets() {
             if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL.includes('xxxxxxxx')) {
                 console.warn('URL Google Sheets belum dikonfigurasi.');
@@ -659,8 +660,13 @@
             try {
                 const response = await fetch(GOOGLE_SHEETS_URL, {
                     method: 'GET',
-                    mode: 'cors', // Perlu CORS dari Apps Script
+                    redirect: 'follow' // 👈 PENTING: Menangani redirect otomatis Google Apps Script
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const result = await response.json();
                 if (result.status === 'success') {
                     allRecords = result.data;
