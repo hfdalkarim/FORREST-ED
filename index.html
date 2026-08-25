@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORREST-ED · Kalkulator Stratifikasi Risiko Klinis</title>
+    <meta name="description" content="Kalkulator FORREST-ED dengan manajemen data pasien.">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES & RESET
+                   ============================================================ */
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --primary-gradient: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            --green: #34a853;
+            --green-light: #e6f4ea;
+            --green-dark: #1e7e34;
+            --red: #ea4335;
+            --red-light: #fce8e6;
+            --red-dark: #b31412;
+            --amber: #fbbc04;
+            --amber-light: #fef7e0;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --text-muted: #9aa0a6;
+            --border: #dadce0;
+            --border-light: #e8eaed;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --max-width: 1200px;
+            --header-height: 72px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; font-size:16px; -webkit-font-smoothing:antialiased; }
+        body {
+            font-family:var(--font-family);
+            background:var(--bg);
+            color:var(--text-primary);
+            line-height:1.6;
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            background:var(--card-bg);
+            border-bottom:1px solid var(--border-light);
+            box-shadow:var(--shadow-sm);
+            position:sticky;
+            top:0;
+            z-index:100;
+            height:var(--header-height);
+            display:flex;
+            align-items:center;
+            padding:0 24px;
+        }
+        .header-inner {
+            max-width:var(--max-width);
+            margin:0 auto;
+            width:100%;
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+        .header-logo {
+            width:44px; height:44px;
+            background:var(--primary-gradient);
+            border-radius:var(--radius-md);
+            display:flex; align-items:center; justify-content:center;
+            color:#fff; font-weight:800; font-size:20px;
+            flex-shrink:0; box-shadow:0 2px 8px rgba(26,115,232,0.3);
+        }
+        .header-title { font-size:1.3rem; font-weight:700; color:var(--text-primary); letter-spacing:-0.02em; }
+        .header-subtitle { font-size:0.8rem; color:var(--text-secondary); font-weight:500; margin-top:-2px; }
+        .header-badge {
+            margin-left:auto;
+            background:var(--amber-light); color:#e37400;
+            font-size:0.7rem; font-weight:700; padding:6px 14px;
+            border-radius:999px; border:1.5px solid #fdd663;
+            letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap;
+            display:flex; align-items:center; gap:6px;
+        }
+        .header-badge .dot { width:7px; height:7px; background:#e37400; border-radius:50%; animation:pulse-dot 1.8s ease-in-out infinite; }
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        .main-content {
+            flex:1; max-width:var(--max-width); margin:0 auto; width:100%;
+            padding:32px 24px; display:grid; grid-template-columns:1fr 1.1fr; gap:32px; align-items:start;
+        }
+
+        /* ==================== KOLOM KIRI ==================== */
+        .info-column { display:flex; flex-direction:column; gap:20px; }
+        .hero-card {
+            background:var(--primary-gradient); border-radius:var(--radius-lg);
+            padding:32px 28px; color:#fff; box-shadow:var(--shadow-lg);
+            position:relative; overflow:hidden;
+        }
+        .hero-card::after { content:''; position:absolute; top:-60%; right:-30%; width:300px; height:300px; background:rgba(255,255,255,0.08); border-radius:50%; }
+        .hero-card::before { content:''; position:absolute; bottom:-40%; left:-20%; width:250px; height:250px; background:rgba(255,255,255,0.05); border-radius:50%; }
+        .hero-card h1 { font-size:2rem; font-weight:800; letter-spacing:-0.03em; line-height:1.2; margin-bottom:10px; position:relative; z-index:1; }
+        .hero-card .hero-tagline { font-size:1rem; font-weight:500; opacity:0.9; position:relative; z-index:1; margin-bottom:16px; }
+        .hero-card .hero-description { font-size:0.85rem; opacity:0.8; line-height:1.7; position:relative; z-index:1; }
+        .components-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+        .component-card {
+            background:var(--card-bg); border:1px solid var(--border-light);
+            border-radius:var(--radius-md); padding:16px 14px; text-align:center;
+            box-shadow:var(--shadow-sm); transition:var(--transition); cursor:default;
+        }
+        .component-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); border-color:var(--primary-light); }
+        .component-icon { font-size:1.8rem; margin-bottom:6px; }
+        .component-name { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); margin-bottom:2px; }
+        .component-point { font-size:1.3rem; font-weight:800; color:var(--primary); }
+        .risk-categories { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .risk-card { border-radius:var(--radius-md); padding:18px 16px; display:flex; flex-direction:column; align-items:center; text-align:center; border:2px solid transparent; transition:var(--transition); }
+        .risk-card.low { background:var(--green-light); border-color:#a8dab5; }
+        .risk-card.high { background:var(--red-light); border-color:#f5c6c3; }
+        .risk-card .risk-score { font-size:1.8rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:2px; }
+        .risk-card.low .risk-score { color:var(--green-dark); }
+        .risk-card.high .risk-score { color:var(--red-dark); }
+        .risk-card .risk-label { font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+        .risk-card.low .risk-label { color:var(--green-dark); }
+        .risk-card.high .risk-label { color:var(--red-dark); }
+        .risk-card .risk-desc { font-size:0.72rem; color:var(--text-secondary); margin-top:4px; line-height:1.5; }
+        .disclaimer-box {
+            background:#fff8e1; border:1px solid #fdd663; border-radius:var(--radius-md);
+            padding:16px 18px; font-size:0.78rem; color:#5f4b00; line-height:1.7;
+            display:flex; gap:10px; align-items:flex-start;
+        }
+        .disclaimer-box .icon { font-size:1.2rem; flex-shrink:0; margin-top:1px; }
+        .citation { font-size:0.7rem; color:var(--text-muted); text-align:center; line-height:1.6; padding:4px 0; }
+
+        /* ==================== KOLOM KANAN (FORM) ==================== */
+        .form-column { display:flex; flex-direction:column; gap:16px; }
+        .calculator-card {
+            background:var(--card-bg); border-radius:var(--radius-lg);
+            box-shadow:var(--shadow-md); padding:28px 26px;
+            border:1px solid var(--border-light); transition:var(--transition);
+        }
+        .calculator-card:hover { box-shadow:var(--shadow-lg); }
+        .calculator-card .card-title { font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+
+        .form-group { margin-bottom:18px; }
+        .form-label { display:block; font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin-bottom:6px; letter-spacing:0.02em; text-transform:uppercase; }
+        .form-label .required { color:var(--red); font-weight:700; }
+        .form-input {
+            width:100%; padding:12px 14px; border:1.5px solid var(--border);
+            border-radius:var(--radius-sm); font-family:var(--font-family); font-size:0.95rem;
+            font-weight:500; color:var(--text-primary); background:#fafbfc;
+            transition:var(--transition); outline:none; -webkit-appearance:none; appearance:none;
+        }
+        .form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(26,115,232,0.12); background:#fff; }
+        .form-input::placeholder { color:var(--text-muted); font-weight:400; }
+        .form-input.error { border-color:var(--red); box-shadow:0 0 0 3px rgba(234,67,53,0.1); }
+        .error-message { font-size:0.75rem; color:var(--red); margin-top:4px; display:none; font-weight:500; }
+        .error-message.visible { display:block; animation:shake 0.3s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+        .form-hint { font-size:0.72rem; color:var(--text-muted); margin-top:4px; font-weight:400; }
+        .form-hint.threshold { color:var(--primary); font-weight:500; }
+
+        .toggle-group { display:flex; gap:8px; flex-wrap:wrap; }
+        .toggle-btn {
+            flex:1; min-width:80px; padding:10px 16px; border:2px solid var(--border);
+            border-radius:var(--radius-sm); background:#fafbfc; font-family:var(--font-family);
+            font-size:0.88rem; font-weight:600; color:var(--text-secondary); cursor:pointer;
+            transition:var(--transition); text-align:center; user-select:none; -webkit-tap-highlight-color:transparent;
+            position:relative;
+        }
+        .toggle-btn:hover { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+        .toggle-btn.selected { border-color:var(--primary); background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(26,115,232,0.3); }
+        .toggle-btn.selected:hover { background:var(--primary-dark); border-color:var(--primary-dark); }
+
+        .btn {
+            display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            padding:14px 24px; border:none; border-radius:var(--radius-md);
+            font-family:var(--font-family); font-size:0.95rem; font-weight:700; cursor:pointer;
+            transition:var(--transition); letter-spacing:0.02em; position:relative; overflow:hidden;
+            -webkit-tap-highlight-color:transparent; user-select:none; width:100%;
+        }
+        .btn-primary { background:var(--primary-gradient); color:#fff; box-shadow:0 4px 16px rgba(26,115,232,0.3); }
+        .btn-primary:hover { box-shadow:0 6px 24px rgba(26,115,232,0.4); transform:translateY(-2px); }
+        .btn-primary:active { transform:translateY(0); box-shadow:0 2px 8px rgba(26,115,232,0.3); }
+        .btn-primary:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; transform:none; color:#888; }
+        .btn-save { background:var(--green); color:#fff; box-shadow:0 4px 16px rgba(52,168,83,0.3); }
+        .btn-save:hover { background:var(--green-dark); box-shadow:0 6px 24px rgba(52,168,83,0.4); transform:translateY(-2px); }
+        .btn-save:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; transform:none; color:#888; }
+        .btn-reset { background:transparent; color:var(--text-secondary); border:none; padding:8px 12px; font-size:0.82rem; font-weight:600; cursor:pointer; text-decoration:underline; transition:var(--transition); width:auto; display:inline-block; }
+        .btn-reset:hover { color:var(--red); }
+        .btn-row { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; }
+
+        /* ==================== HASIL ==================== */
+        .result-container { display:none; margin-top:16px; animation:fadeInUp 0.5s ease forwards; background:var(--card-bg); border-radius:var(--radius-md); border:2px solid var(--border-light); padding:20px; }
+        .result-container.visible { display:block; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        .result-score-row { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+        .score-circle {
+            width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            font-size:2.2rem; font-weight:800; color:#fff; flex-shrink:0; box-shadow:0 4px 12px rgba(0,0,0,0.15); letter-spacing:-0.02em;
+        }
+        .score-circle.low { background:var(--green); }
+        .score-circle.high { background:var(--red); }
+        .result-interpretation { flex:1; min-width:180px; }
+        .result-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:2px; }
+        .result-risk { font-size:1.3rem; font-weight:800; letter-spacing:-0.02em; }
+        .result-risk.low { color:var(--green-dark); }
+        .result-risk.high { color:var(--red-dark); }
+        .result-detail { font-size:0.8rem; color:var(--text-secondary); line-height:1.5; }
+        .breakdown { margin-top:16px; border-top:1px solid var(--border-light); padding-top:14px; display:grid; gap:8px; }
+        .breakdown-row { display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; padding:6px 10px; border-radius:var(--radius-sm); background:#fafbfc; transition:var(--transition); }
+        .breakdown-row:hover { background:var(--primary-light); }
+        .breakdown-label { font-weight:500; color:var(--text-secondary); display:flex; align-items:center; gap:6px; }
+        .breakdown-value { font-weight:700; color:var(--text-primary); }
+        .breakdown-value.point { color:var(--primary); font-size:1rem; }
+        .save-section { margin-top:16px; padding-top:14px; border-top:1px solid var(--border-light); display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+        .save-status { font-size:0.8rem; font-weight:600; padding:6px 12px; border-radius:999px; display:none; align-items:center; gap:6px; }
+        .save-status.visible { display:inline-flex; animation:fadeInUp 0.3s ease; }
+        .save-status.success { background:var(--green-light); color:var(--green-dark); }
+        .save-status.failed { background:var(--red-light); color:var(--red-dark); }
+        .save-status.saving { background:var(--amber-light); color:#e37400; }
+        .spinner { width:14px; height:14px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* ==================== TABEL DATA (LOGGER BARU) ==================== */
+        .data-section {
+            max-width:var(--max-width); margin:0 auto; width:100%; padding:0 24px 32px;
+        }
+        .data-card {
+            background:var(--card-bg); border-radius:var(--radius-lg);
+            box-shadow:var(--shadow-sm); border:1px solid var(--border-light); overflow:hidden;
+        }
+        .data-header {
+            padding:16px 20px; border-bottom:1px solid var(--border-light);
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+        }
+        .data-title { font-size:0.95rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+        .data-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .page-size-select {
+            padding:6px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+            font-family:var(--font-family); font-size:0.8rem; font-weight:600; background:#fafbfc;
+            cursor:pointer; transition:var(--transition);
+        }
+        .page-size-select:focus { border-color:var(--primary); outline:none; }
+        .btn-delete-all {
+            background:var(--red); color:#fff; border:none; padding:8px 14px;
+            border-radius:var(--radius-sm); font-family:var(--font-family); font-size:0.75rem;
+            font-weight:600; cursor:pointer; transition:var(--transition);
+        }
+        .btn-delete-all:hover { background:var(--red-dark); }
+        .btn-delete-all:disabled { background:#ccc; cursor:not-allowed; }
+
+        .table-wrapper { overflow-x:auto; }
+        .data-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+        .data-table th, .data-table td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--border-light); white-space:nowrap; }
+        .data-table th { background:#fafbfc; font-weight:700; color:var(--text-secondary); text-transform:uppercase; font-size:0.7rem; letter-spacing:0.03em; position:sticky; top:0; }
+        .data-table tr:hover td { background:#f8f9fa; }
+        .data-table td.actions { white-space:nowrap; }
+        .btn-edit, .btn-delete {
+            background:none; border:none; cursor:pointer; font-size:1rem; margin:0 4px;
+            transition:var(--transition); color:var(--text-secondary);
+        }
+        .btn-edit:hover { color:var(--primary); transform:scale(1.1); }
+        .btn-delete:hover { color:var(--red); transform:scale(1.1); }
+        .pagination { display:flex; align-items:center; justify-content:center; gap:12px; padding:14px 0; }
+        .pagination button {
+            background:var(--card-bg); border:1.5px solid var(--border); border-radius:var(--radius-sm);
+            padding:6px 12px; font-family:var(--font-family); font-size:0.8rem; font-weight:600;
+            cursor:pointer; transition:var(--transition);
+        }
+        .pagination button:hover:not(:disabled) { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+        .pagination button:disabled { opacity:0.5; cursor:not-allowed; }
+        .pagination .page-info { font-size:0.8rem; color:var(--text-secondary); }
+
+        /* ==================== FOOTER ==================== */
+        .footer { background:var(--card-bg); border-top:1px solid var(--border-light); padding:20px 24px; text-align:center; font-size:0.75rem; color:var(--text-muted); line-height:1.7; }
+        .footer strong { color:var(--text-secondary); }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width:992px) {
+            .main-content { grid-template-columns:1fr; gap:24px; }
+            .components-grid { grid-template-columns:repeat(3,1fr); }
+        }
+        @media (max-width:768px) {
+            :root{ --header-height:60px; }
+            .header{padding:0 16px;}
+            .header-logo{width:36px;height:36px;font-size:16px;}
+            .header-title{font-size:1.05rem;}
+            .header-subtitle{font-size:0.7rem;}
+            .header-badge{font-size:0.6rem;padding:4px 10px;letter-spacing:0.02em;}
+            .main-content{padding:16px 12px;gap:16px;}
+            .hero-card{padding:22px 18px;}
+            .hero-card h1{font-size:1.5rem;}
+            .calculator-card{padding:20px 16px;}
+            .components-grid{grid-template-columns:1fr;gap:8px;}
+            .component-card{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;}
+            .component-icon{font-size:1.4rem;margin-bottom:0;}
+            .component-point{margin-left:auto;}
+            .risk-categories{grid-template-columns:1fr;}
+            .result-score-row{flex-direction:column;align-items:flex-start;gap:12px;}
+            .score-circle{width:64px;height:64px;font-size:1.7rem;}
+            .btn-row{flex-direction:column;}
+            .data-section{padding:0 12px 20px;}
+            .data-header{flex-direction:column;align-items:flex-start;}
+            .data-table{font-size:0.7rem;}
+            .data-table th, .data-table td{padding:6px 8px;}
+        }
+        @media (max-width:480px) {
+            .header-badge{display:none;}
+            .toggle-group{flex-direction:column;}
+            .toggle-btn{width:100%;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-logo" aria-hidden="true">F</div>
+            <div>
+                <div class="header-title">FORREST-ED</div>
+                <div class="header-subtitle">Stratifikasi risiko awal pasien gawat darurat</div>
+            </div>
+            <div class="header-badge">
+                <span class="dot"></span>
+                Prototype UMY · Penggunaan Klinis Terbatas
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content">
+
+        <!-- KOLOM KIRI: INFORMASI -->
+        <div class="info-column">
+            <div class="hero-card">
+                <h1>Kenali Risiko<br>Lebih Awal</h1>
+                <p class="hero-tagline">Skor FORREST membantu stratifikasi risiko klinis pada pasien kritis non-trauma di IGD.</p>
+                <p class="hero-description">
+                    Kalkulator ini menghitung skor FORREST berdasarkan tiga komponen utama:
+                    <strong>anemia</strong> (berdasarkan kadar hemoglobin),
+                    <strong>gangguan pernapasan</strong>, dan
+                    <strong>penggunaan obat vasoaktif</strong>.
+                </p>
+            </div>
+
+            <div class="components-grid">
+                <div class="component-card" title="Anemia: Laki-laki Hb < 13 g/dL, Perempuan Hb < 12 g/dL">
+                    <div class="component-icon">🩸</div>
+                    <div class="component-name">Anemia</div>
+                    <div class="component-point">+1 poin</div>
+                </div>
+                <div class="component-card" title="Gagal napas, sesak, atau gangguan fungsi paru bermakna">
+                    <div class="component-icon">🫁</div>
+                    <div class="component-name">Gangguan Napas</div>
+                    <div class="component-point">+1 poin</div>
+                </div>
+                <div class="component-card" title="Vasopressor/inotropik untuk mempertahankan hemodinamik">
+                    <div class="component-icon">💉</div>
+                    <div class="component-name">Vasoaktif</div>
+                    <div class="component-point">+2 poin</div>
+                </div>
+            </div>
+
+            <div class="risk-categories">
+                <div class="risk-card low">
+                    <div class="risk-score">Skor 0–3</div>
+                    <div class="risk-label">Risiko Rendah</div>
+                    <div class="risk-desc">Prognosis lebih baik, pertimbangan resusitasi lebih luas</div>
+                </div>
+                <div class="risk-card high">
+                    <div class="risk-score">Skor 4–5</div>
+                    <div class="risk-label">Risiko Tinggi</div>
+                    <div class="risk-desc">Futility resusitasi lebih tinggi, evaluasi intensif</div>
+                </div>
+            </div>
+
+            <div class="disclaimer-box">
+                <span class="icon">⚠️</span>
+                <div>
+                    <strong>Disclaimer Klinis:</strong>
+                    Kalkulator ini hanya sebagai alat bantu stratifikasi risiko awal dan <strong>bukan pengganti
+                    penilaian klinis profesional</strong>. Keputusan medis harus tetap didasarkan pada evaluasi
+                    menyeluruh oleh tenaga kesehatan yang kompeten.
+                </div>
+            </div>
+
+            <p class="citation">
+                Referensi: Pramono et al. <em>"Explainable Machine Learning Reveals FORREST Score Components as
+                Dominant Predictors of Mortality and ICU Admission: A SHAP-Based Analysis."</em>
+            </p>
+        </div>
+
+        <!-- KOLOM KANAN: FORM KALKULATOR -->
+        <div class="form-column">
+            <div class="calculator-card">
+                <div class="card-title">📋 Kalkulator Skor FORREST-ED</div>
+
+                <form id="forrest-form" novalidate>
+                    <!-- Nama Pasien -->
+                    <div class="form-group">
+                        <label class="form-label" for="nama-pasien">Nama Pasien <span class="required">*</span></label>
+                        <input type="text" id="nama-pasien" class="form-input" placeholder="Masukkan nama pasien" autocomplete="off" required>
+                        <div class="error-message" id="error-nama">Nama pasien wajib diisi.</div>
+                    </div>
+
+                    <!-- Umur -->
+                    <div class="form-group">
+                        <label class="form-label" for="umur">Umur (tahun) <span class="required">*</span></label>
+                        <input type="number" id="umur" class="form-input" placeholder="Contoh: 65" min="0" max="120" step="1" inputmode="numeric" autocomplete="off" required>
+                        <div class="error-message" id="error-umur">Umur harus antara 1–120.</div>
+                    </div>
+
+                    <!-- Jenis Kelamin -->
+                    <div class="form-group">
+                        <label class="form-label">Jenis Kelamin <span class="required">*</span></label>
+                        <div class="toggle-group" role="radiogroup" aria-label="Pilih jenis kelamin">
+                            <button type="button" class="toggle-btn" data-gender="Laki-laki" role="radio" aria-checked="false">👨 Laki-laki</button>
+                            <button type="button" class="toggle-btn" data-gender="Perempuan" role="radio" aria-checked="false">👩 Perempuan</button>
+                        </div>
+                        <input type="hidden" id="jenis-kelamin" value="">
+                        <div class="error-message" id="error-jk">Silakan pilih jenis kelamin.</div>
+                    </div>
+
+                    <!-- Hemoglobin -->
+                    <div class="form-group">
+                        <label class="form-label" for="hemoglobin">Kadar Hemoglobin (g/dL) <span class="required">*</span></label>
+                        <input type="number" id="hemoglobin" class="form-input" placeholder="Contoh: 11.5" min="0" max="30" step="0.1" inputmode="decimal" autocomplete="off" required>
+                        <div class="form-hint threshold" id="hb-threshold-hint">Pilih jenis kelamin untuk melihat ambang batas anemia.</div>
+                        <div class="error-message" id="error-hb">Hemoglobin harus > 0 dan ≤ 30 g/dL.</div>
+                    </div>
+
+                    <!-- Gangguan Pernapasan -->
+                    <div class="form-group">
+                        <label class="form-label">Gangguan Pernapasan / Paru <span class="required">*</span></label>
+                        <div class="toggle-group" role="radiogroup" aria-label="Gangguan pernapasan">
+                            <button type="button" class="toggle-btn" data-value="Ya" data-field="gangguan-pernapasan" role="radio" aria-checked="false">✅ Ya</button>
+                            <button type="button" class="toggle-btn selected" data-value="Tidak" data-field="gangguan-pernapasan" role="radio" aria-checked="true">❌ Tidak</button>
+                        </div>
+                        <input type="hidden" id="gangguan-pernapasan" value="Tidak">
+                        <div class="form-hint">Gagal napas, sesak, atau gangguan fungsi paru yang bermakna.</div>
+                    </div>
+
+                    <!-- Obat Vasoaktif -->
+                    <div class="form-group">
+                        <label class="form-label">Penggunaan Obat Vasoaktif <span class="required">*</span></label>
+                        <div class="toggle-group" role="radiogroup" aria-label="Obat vasoaktif">
+                            <button type="button" class="toggle-btn" data-value="Ya" data-field="obat-vasoaktif" role="radio" aria-checked="false">✅ Ya</button>
+                            <button type="button" class="toggle-btn selected" data-value="Tidak" data-field="obat-vasoaktif" role="radio" aria-checked="true">❌ Tidak</button>
+                        </div>
+                        <input type="hidden" id="obat-vasoaktif" value="Tidak">
+                        <div class="form-hint">Vasopressor atau inotropik untuk mempertahankan hemodinamik.</div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-primary" id="btn-hitung">🔢 Hitung Skor FORREST-ED</button>
+                        <button type="button" class="btn btn-reset" id="btn-reset">↺ Atur ulang</button>
+                    </div>
+                </form>
+
+                <!-- Hasil Kalkulasi -->
+                <div class="result-container" id="result-container">
+                    <div class="result-score-row">
+                        <div class="score-circle low" id="score-circle">0</div>
+                        <div class="result-interpretation">
+                            <div class="result-label">Interpretasi</div>
+                            <div class="result-risk low" id="result-risk-text">Risiko Rendah</div>
+                            <div class="result-detail" id="result-detail-text">
+                                Skor FORREST 0–3 menunjukkan risiko mortalitas dan kebutuhan ICU yang lebih rendah.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="breakdown" id="breakdown-container"></div>
+                    <div class="save-section" id="save-section" style="display:none;">
+                        <button type="button" class="btn btn-save" id="btn-save">💾 Simpan ke Google Sheets</button>
+                        <span class="save-status" id="save-status"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== TABEL DATA PASIEN (LOGGER BARU) ==================== -->
+    <section class="data-section">
+        <div class="data-card">
+            <div class="data-header">
+                <div class="data-title">📋 Data Pasien Tersimpan</div>
+                <div class="data-controls">
+                    <label for="page-size" style="font-size:0.8rem; font-weight:600;">Tampilkan:</label>
+                    <select id="page-size" class="page-size-select">
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <button type="button" class="btn-delete-all" id="btn-delete-all">🗑 Hapus Semua</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table" id="data-table">
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Nama</th>
+                            <th>Umur</th>
+                            <th>JK</th>
+                            <th>Hb (g/dL)</th>
+                            <th>Anemia</th>
+                            <th>Ggn Napas</th>
+                            <th>Vasoaktif</th>
+                            <th>Skor</th>
+                            <th>Interpretasi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination">
+                <button id="btn-prev" disabled>‹ Sebelumnya</button>
+                <span class="page-info" id="page-info">Hal 1 dari 1</span>
+                <button id="btn-next" disabled>Berikutnya ›</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <strong>FORREST-ED Calculator</strong> · Prototype UMY v13.10.03<br>
+        Dikembangkan untuk keperluan edukasi dan penelitian klinis.<br>
+        Data tersimpan di Google Sheets dan lokal sebagai cadangan.
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        /**
+         * ============================================================
+         * KONFIGURASI
+         * ============================================================
+         */
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbw1UtZs81x8PUeuDkA_s258VxAOGEBKPn7n4_jh3OorJKCkb_7e1KHQLhrFgqQjB1XX/exec"; // ⚠️ GANTI
+
+        const STORAGE_KEYS = {
+            RECORDS: 'forrest_records',   // Data pasien (array of objects)
+            LOGS: 'forrest_logs',         // Riwayat pengiriman (opsional, bisa diabaikan)
+        };
+
+        /**
+         * ============================================================
+         * STATE MANAGEMENT
+         * ============================================================
+         */
+        let allRecords = [];            // Semua data pasien (lokal)
+        let currentPage = 1;
+        let pageSize = 10;
+        let currentResult = null;
+        let isEditing = false;          // Flag untuk mode edit
+        let editingId = null;
+
+        // DOM Elements
+        const form = document.getElementById('forrest-form');
+        const inputNama = document.getElementById('nama-pasien');
+        const inputUmur = document.getElementById('umur');
+        const inputHb = document.getElementById('hemoglobin');
+        const inputJK = document.getElementById('jenis-kelamin');
+        const inputGangguanNapas = document.getElementById('gangguan-pernapasan');
+        const inputVasoaktif = document.getElementById('obat-vasoaktif');
+
+        const btnHitung = document.getElementById('btn-hitung');
+        const btnReset = document.getElementById('btn-reset');
+        const btnSave = document.getElementById('btn-save');
+        const btnDeleteAll = document.getElementById('btn-delete-all');
+        const pageSizeSelect = document.getElementById('page-size');
+        const tableBody = document.getElementById('table-body');
+        const pagination = document.getElementById('pagination');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const pageInfo = document.getElementById('page-info');
+
+        const resultContainer = document.getElementById('result-container');
+        const scoreCircle = document.getElementById('score-circle');
+        const resultRiskText = document.getElementById('result-risk-text');
+        const resultDetailText = document.getElementById('result-detail-text');
+        const breakdownContainer = document.getElementById('breakdown-container');
+        const saveSection = document.getElementById('save-section');
+        const saveStatus = document.getElementById('save-status');
+
+        const hbThresholdHint = document.getElementById('hb-threshold-hint');
+        const toastContainer = document.getElementById('toast-container');
+
+        /**
+         * ============================================================
+         * UTILITAS
+         * ============================================================
+         */
+        function formatTimestamp(date) {
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        function getCurrentTimestamp() {
+            return formatTimestamp(new Date());
+        }
+
+        function getAnemiaThreshold(gender) {
+            return gender === 'Laki-laki' ? 13 : 12;
+        }
+
+        function determineAnemia(gender, hb) {
+            if (!gender || isNaN(hb)) return false;
+            return hb < getAnemiaThreshold(gender);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : type === 'failed' ? '❌' : '⏳';
+            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+        }
+
+        /**
+         * ============================================================
+         * LOAD & SAVE RECORDS (localStorage)
+         * ============================================================
+         */
+        function loadRecordsFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEYS.RECORDS);
+                allRecords = stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error('Gagal memuat data:', e);
+                allRecords = [];
+            }
+        }
+
+        function saveRecordsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.RECORDS, JSON.stringify(allRecords));
+            } catch (e) {
+                console.error('Gagal menyimpan data:', e);
+            }
+        }
+
+        function addRecordToLocal(record) {
+            allRecords.push(record);
+            saveRecordsToStorage();
+            renderTable();
+        }
+
+        function updateRecordInLocal(id, updatedRecord) {
+            const index = allRecords.findIndex(r => r.id === id);
+            if (index !== -1) {
+                allRecords[index] = { ...updatedRecord, id: id };
+                saveRecordsToStorage();
+                renderTable();
+                return true;
+            }
+            return false;
+        }
+
+        function deleteRecordFromLocal(id) {
+            allRecords = allRecords.filter(r => r.id !== id);
+            saveRecordsToStorage();
+            renderTable();
+        }
+
+        function deleteAllRecordsLocal() {
+            allRecords = [];
+            saveRecordsToStorage();
+            renderTable();
+        }
+
+        /**
+         * ============================================================
+         * TABEL & PAGINATION
+         * ============================================================
+         */
+        function renderTable() {
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageRecords = allRecords.slice(start, end);
+
+            // Isi tabel
+            if (pageRecords.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:var(--text-muted); padding:20px;">Tidak ada data pasien.</td></tr>`;
+            } else {
+                tableBody.innerHTML = pageRecords.map(record => `
+                    <tr>
+                        <td>${record.timestamp}</td>
+                        <td>${record.nama_pasien}</td>
+                        <td>${record.umur}</td>
+                        <td>${record.jenis_kelamin}</td>
+                        <td>${record.hemoglobin}</td>
+                        <td>${record.anemia}</td>
+                        <td>${record.gangguan_pernapasan}</td>
+                        <td>${record.obat_vasoaktif}</td>
+                        <td><strong>${record.skor_forrest}</strong></td>
+                        <td>${record.interpretasi}</td>
+                        <td class="actions">
+                            <button class="btn-edit" data-id="${record.id}" title="Edit">✏️</button>
+                            <button class="btn-delete" data-id="${record.id}" title="Hapus">🗑</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Update pagination
+            const totalPages = Math.max(1, Math.ceil(allRecords.length / pageSize));
+            currentPage = Math.min(currentPage, totalPages);
+            pageInfo.textContent = `Hal ${currentPage} dari ${totalPages}`;
+            btnPrev.disabled = currentPage <= 1;
+            btnNext.disabled = currentPage >= totalPages;
+
+            // Attach event listeners untuk tombol aksi
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    loadRecordForEdit(id);
+                });
+            });
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    if (confirm('Hapus data ini?')) {
+                        deleteRecordFromLocal(id);
+                        // Opsional: kirim delete ke Google Sheets
+                        // sendDeleteToSheets(id);
+                    }
+                });
+            });
+        }
+
+        function loadRecordForEdit(id) {
+            const record = allRecords.find(r => r.id === id);
+            if (!record) return;
+
+            // Isi form dengan data record
+            inputNama.value = record.nama_pasien;
+            inputUmur.value = record.umur;
+            selectedGender = record.jenis_kelamin;
+            inputJK.value = record.jenis_kelamin;
+            inputHb.value = record.hemoglobin;
+            inputGangguanNapas.value = record.gangguan_pernapasan;
+            inputVasoaktif.value = record.obat_vasoaktif;
+
+            // Set toggle buttons
+            document.querySelectorAll('[data-gender]').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.gender === selectedGender);
+                btn.setAttribute('aria-checked', btn.dataset.gender === selectedGender ? 'true' : 'false');
+            });
+            document.querySelectorAll('[data-field]').forEach(btn => {
+                const field = btn.dataset.field;
+                const value = field === 'gangguan-pernapasan' ? inputGangguanNapas.value : inputVasoaktif.value;
+                btn.classList.toggle('selected', btn.dataset.value === value);
+                btn.setAttribute('aria-checked', btn.dataset.value === value ? 'true' : 'false');
+            });
+
+            // Update hint Hb
+            if (selectedGender) {
+                const threshold = getAnemiaThreshold(selectedGender);
+                hbThresholdHint.textContent = `Ambang batas anemia: Hb < ${threshold} g/dL (${selectedGender})`;
+                hbThresholdHint.classList.add('threshold');
+            }
+
+            // Set mode edit
+            isEditing = true;
+            editingId = id;
+            btnHitung.textContent = '🔄 Perbarui Skor';
+            btnHitung.classList.add('btn-edit-mode'); // optional style
+            showToast('Mode edit: perbarui data lalu klik "Perbarui Skor"', 'saving');
+        }
+
+        function resetForm() {
+            form.reset();
+            inputNama.value = '';
+            inputUmur.value = '';
+            inputHb.value = '';
+            selectedGender = '';
+            inputJK.value = '';
+            inputGangguanNapas.value = 'Tidak';
+            inputVasoaktif.value = 'Tidak';
+            document.querySelectorAll('[data-gender]').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.setAttribute('aria-checked', 'false');
+            });
+            document.querySelectorAll('[data-field]').forEach(btn => {
+                if (btn.dataset.value === 'Tidak') {
+                    btn.classList.add('selected');
+                    btn.setAttribute('aria-checked', 'true');
+                } else {
+                    btn.classList.remove('selected');
+                    btn.setAttribute('aria-checked', 'false');
+                }
+            });
+            hbThresholdHint.textContent = 'Pilih jenis kelamin untuk melihat ambang batas anemia.';
+            hbThresholdHint.classList.remove('threshold');
+            resultContainer.classList.remove('visible');
+            saveSection.style.display = 'none';
+            currentResult = null;
+            isEditing = false;
+            editingId = null;
+            btnHitung.textContent = '🔢 Hitung Skor FORREST-ED';
+            showToast('Form direset', 'success');
+        }
+
+        /**
+         * ============================================================
+         * KALKULASI SKOR FORREST
+         * ============================================================
+         */
+        function validateForm() {
+            let isValid = true;
+            const errors = {
+                nama: document.getElementById('error-nama'),
+                umur: document.getElementById('error-umur'),
+                jk: document.getElementById('error-jk'),
+                hb: document.getElementById('error-hb'),
+            };
+            Object.values(errors).forEach(el => el.classList.remove('visible'));
+            [inputNama, inputUmur, inputHb].forEach(el => el.classList.remove('error'));
+
+            if (!inputNama.value.trim()) {
+                errors.nama.classList.add('visible');
+                inputNama.classList.add('error');
+                isValid = false;
+            }
+            const umur = parseInt(inputUmur.value, 10);
+            if (!umur || umur <= 0 || umur > 120) {
+                errors.umur.classList.add('visible');
+                inputUmur.classList.add('error');
+                isValid = false;
+            }
+            if (!selectedGender) {
+                errors.jk.classList.add('visible');
+                isValid = false;
+            }
+            const hb = parseFloat(inputHb.value);
+            if (!hb || hb <= 0 || hb > 30) {
+                errors.hb.classList.add('visible');
+                inputHb.classList.add('error');
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        function calculateForrestScore() {
+            if (!validateForm()) return null;
+            const nama = inputNama.value.trim();
+            const umur = parseInt(inputUmur.value, 10);
+            const hb = parseFloat(inputHb.value);
+            const gender = selectedGender;
+            const anemia = determineAnemia(gender, hb);
+            const anemiaPoint = anemia ? 1 : 0;
+            const gangguanNapas = inputGangguanNapas.value === 'Ya';
+            const napasPoint = gangguanNapas ? 1 : 0;
+            const vasoaktif = inputVasoaktif.value === 'Ya';
+            const vasoaktifPoint = vasoaktif ? 2 : 0;
+            const totalScore = anemiaPoint + napasPoint + vasoaktifPoint;
+            const interpretation = totalScore <= 3 ? 'Risiko Rendah' : 'Risiko Tinggi';
+            const riskLevel = totalScore <= 3 ? 'low' : 'high';
+
+            return {
+                id: new Date().getTime().toString(),
+                timestamp: getCurrentTimestamp(),
+                nama_pasien: nama,
+                umur: umur,
+                jenis_kelamin: gender,
+                hemoglobin: hb,
+                anemia: anemia ? 'Ya' : 'Tidak',
+                gangguan_pernapasan: gangguanNapas ? 'Ya' : 'Tidak',
+                obat_vasoaktif: vasoaktif ? 'Ya' : 'Tidak',
+                skor_forrest: totalScore,
+                interpretasi: interpretation,
+                risk_level: riskLevel,
+            };
+        }
+
+        function displayResult(result) {
+            currentResult = result;
+            resultContainer.classList.add('visible');
+            scoreCircle.textContent = result.skor_forrest;
+            scoreCircle.className = `score-circle ${result.risk_level}`;
+            resultRiskText.textContent = result.interpretasi;
+            resultRiskText.className = `result-risk ${result.risk_level}`;
+            resultDetailText.textContent = result.risk_level === 'low' ?
+                `Skor FORREST ${result.skor_forrest} menunjukkan risiko mortalitas dan kebutuhan ICU yang lebih rendah.` :
+                `Skor FORREST ${result.skor_forrest} menunjukkan risiko tinggi dengan futility resusitasi yang lebih tinggi.`;
+
+            breakdownContainer.innerHTML = `
+                <div class="breakdown-row">
+                    <span class="breakdown-label">🩸 Anemia (Hb < ${getAnemiaThreshold(result.jenis_kelamin)} g/dL)</span>
+                    <span class="breakdown-value">${result.anemia} (+${result.anemia ? 1 : 0})</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">🫁 Gangguan Pernapasan</span>
+                    <span class="breakdown-value">${result.gangguan_pernapasan} (+${result.gangguan_pernapasan === 'Ya' ? 1 : 0})</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">💉 Obat Vasoaktif</span>
+                    <span class="breakdown-value">${result.obat_vasoaktif} (+${result.obat_vasoaktif === 'Ya' ? 2 : 0})</span>
+                </div>
+                <div class="breakdown-row" style="background:${result.risk_level === 'low' ? 'var(--green-light)' : 'var(--red-light)'};">
+                    <span class="breakdown-label" style="font-weight:700;">📊 Total Skor FORREST</span>
+                    <span class="breakdown-value point" style="font-size:1.2rem;">${result.skor_forrest}</span>
+                </div>
+            `;
+            saveSection.style.display = 'flex';
+            saveStatus.className = 'save-status';
+            saveStatus.textContent = '';
+            btnSave.disabled = false;
+            btnSave.textContent = isEditing ? '💾 Perbarui Data' : '💾 Simpan ke Google Sheets';
+        }
+
+        /**
+         * ============================================================
+         * GOOGLE SHEETS INTEGRATION (Kirim Data)
+         * ============================================================
+         */
+        async function sendToGoogleSheets(data, action = 'create') {
+            if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL.includes('xxxxxxxx')) {
+                console.warn('⚠️ Google Sheets URL belum dikonfigurasi.');
+                return false;
+            }
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const response = await fetch(GOOGLE_SHEETS_URL + '?action=' + action, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    signal: controller.signal,
+                });
+                clearTimeout(timeoutId);
+                return true;
+            } catch (error) {
+                console.error('❌ Gagal kirim ke Google Sheets:', error);
+                return false;
+            }
+        }
+
+        async function simpanData(record, isUpdate = false) {
+            const action = isUpdate ? 'update' : 'create';
+            const success = await sendToGoogleSheets(record, action);
+            if (!success) {
+                showToast('Gagal kirim ke server. Data tetap tersimpan lokal.', 'failed');
+            }
+            return success;
+        }
+
+        /**
+         * ============================================================
+         * EVENT LISTENERS
+         * ============================================================
+         */
+        btnHitung.addEventListener('click', function() {
+            const result = calculateForrestScore();
+            if (result) {
+                if (isEditing && editingId) {
+                    // Update record lokal
+                    result.id = editingId; // pertahankan ID lama
+                    updateRecordInLocal(editingId, result);
+                    showToast('Data berhasil diperbarui', 'success');
+                    // Kirim update ke Google Sheets
+                    simpanData(result, true);
+                    // Reset mode edit
+                    isEditing = false;
+                    editingId = null;
+                    btnHitung.textContent = '🔢 Hitung Skor FORREST-ED';
+                } else {
+                    // Simpan record baru lokal
+                    addRecordToLocal(result);
+                    showToast('Data tersimpan lokal', 'success');
+                    // Kirim ke Google Sheets
+                    simpanData(result, false);
+                }
+                displayResult(result);
+            } else {
+                showToast('Mohon lengkapi semua field', 'failed');
+            }
+        });
+
+        btnReset.addEventListener('click', resetForm);
+
+        btnSave.addEventListener('click', async function() {
+            if (!currentResult) return;
+            btnSave.disabled = true;
+            btnSave.textContent = '⏳ Menyimpan...';
+            saveStatus.className = 'save-status saving visible';
+            saveStatus.innerHTML = '<span class="spinner"></span> Mengirim...';
+            const success = await sendToGoogleSheets(currentResult, isEditing ? 'update' : 'create');
+            setTimeout(() => {
+                if (success) {
+                    saveStatus.className = 'save-status success visible';
+                    saveStatus.textContent = '✅ Tersimpan';
+                } else {
+                    saveStatus.className = 'save-status failed visible';
+                    saveStatus.textContent = '❌ Gagal (lokal tersimpan)';
+                }
+                btnSave.disabled = false;
+                btnSave.textContent = isEditing ? '💾 Perbarui Data' : '💾 Simpan ke Google Sheets';
+            }, 500);
+        });
+
+        btnDeleteAll.addEventListener('click', function() {
+            if (allRecords.length === 0) {
+                showToast('Tidak ada data untuk dihapus', 'failed');
+                return;
+            }
+            if (confirm('Hapus SEMUA data pasien? Tindakan ini tidak dapat dibatalkan.')) {
+                deleteAllRecordsLocal();
+                showToast('Semua data dihapus dari lokal', 'success');
+                // Opsional: kirim perintah deleteAll ke Google Sheets
+                // sendDeleteAllToSheets();
+            }
+        });
+
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value, 10);
+            currentPage = 1;
+            renderTable();
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+
+        btnNext.addEventListener('click', () => {
+            const totalPages = Math.ceil(allRecords.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+
+        // Toggle gender
+        document.querySelectorAll('[data-gender]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const gender = this.dataset.gender;
+                selectedGender = gender;
+                inputJK.value = gender;
+                document.querySelectorAll('[data-gender]').forEach(b => {
+                    b.classList.toggle('selected', b.dataset.gender === gender);
+                    b.setAttribute('aria-checked', b.dataset.gender === gender ? 'true' : 'false');
+                });
+                if (gender) {
+                    const threshold = getAnemiaThreshold(gender);
+                    hbThresholdHint.textContent = `Ambang batas anemia: Hb < ${threshold} g/dL (${gender})`;
+                    hbThresholdHint.classList.add('threshold');
+                }
+                document.getElementById('error-jk').classList.remove('visible');
+            });
+        });
+
+        // Toggle Ya/Tidak
+        document.querySelectorAll('[data-field]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const field = this.dataset.field;
+                const value = this.dataset.value;
+                document.getElementById(field).value = value;
+                document.querySelectorAll(`[data-field="${field}"]`).forEach(b => {
+                    b.classList.toggle('selected', b.dataset.value === value);
+                    b.setAttribute('aria-checked', b.dataset.value === value ? 'true' : 'false');
+                });
+            });
+        });
+
+        /**
+         * ============================================================
+         * INITIALIZATION
+         * ============================================================
+         */
+        function initApp() {
+            loadRecordsFromStorage();
+            renderTable();
+            console.log('✅ Aplikasi FORREST-ED siap.');
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
