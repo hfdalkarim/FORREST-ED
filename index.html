@@ -653,32 +653,32 @@
 
         
         async function fetchDataFromSheets() {
-            if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL.includes('xxxxxxxx')) {
-                console.warn('URL Google Sheets belum dikonfigurasi.');
-                return;
-            }
-            try {
-                const response = await fetch(GOOGLE_SHEETS_URL, {
-                    method: 'GET',
-                    redirect: 'follow' // 👈 PENTING: Menangani redirect otomatis Google Apps Script
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                if (result.status === 'success') {
-                    allRecords = result.data;
-                    renderTable();
-                } else {
-                    console.error('Gagal mengambil data:', result.message);
-                }
-            } catch (error) {
-                console.error('Error fetch data:', error);
-                tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--red);">Gagal memuat data dari Google Sheets. Periksa koneksi atau konfigurasi.</td></tr>`;
-            }
+    if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL.includes('xxxxxxxx')) {
+        console.warn('URL Google Sheets belum dikonfigurasi.');
+        return;
+    }
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'GET',
+            redirect: 'follow' // 👈 KUNCI UTAMA: Biarkan fetch mengikuti redirect Google Apps Script secara aman
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            allRecords = result.data;
+            renderTable();
+        } else {
+            console.error('Gagal mengambil data:', result.message);
+        }
+    } catch (error) {
+        console.error('Error fetch data:', error);
+        tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--red);">Gagal memuat data dari Google Sheets. Periksa koneksi atau konfigurasi.</td></tr>`;
+    }
+}
 
         /**
          * ============================================================
